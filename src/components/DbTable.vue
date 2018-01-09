@@ -1,150 +1,98 @@
 <template>
     <div>
-        <el-table
-                :data="tableData"
-                border
-                style="width: 100%"
-                class="table">
-            <el-table-column
-                    fixed
-                    prop="id"
-                    label="item_id"
-                    width="100">
-            </el-table-column>
-            <el-table-column
-                    prop="username"
-                    label="username"
-                    width="120">
-            </el-table-column>
-            <el-table-column
-                    prop="email"
-                    label="email"
-                    width="120">
-            </el-table-column>
-            <el-table-column
-                    prop="phone"
-                    label="phone"
-                    width="130">
-            </el-table-column>
-            <el-table-column
-                    prop="sex"
-                    label="sex"
-                    width="100">
-            </el-table-column>
-            <el-table-column
-                    prop="zone"
-                    label="zone"
-                    width="100">
-            </el-table-column>
-            <el-table-column
-                    prop="create_datetime"
-                    label="create_datetime"
-                    width="300"
-                    :formatter="formatter">
-            </el-table-column>
-            <el-table-column
-                    fixed="right"
-                    label="Operation"
-                    width="100">
-                <template scope="scope">
-                    <el-button @click="editItem(scope.$index, tableData)" type="text" size="large">Edit</el-button>
-                </template>
-            </el-table-column>
-        </el-table>
-        <el-pagination class="pagination" layout="prev, pager, next" :total="total" :page-size="pageSize"
-                       v-on:current-change="changePage">
-        </el-pagination>
-        <db-modal :dialogFormVisible="dialogFormVisible" :form="form" v-on:canclemodal="dialogVisible"></db-modal>
+        <el-form ref="newform" :model="newform" :rules="rules">
+        <el-form-item style="text-align:center">
+         <el-button type="primary" @click="newSubmitForm()" class="yes-btn">
+          确 定
+         </el-button>
+         <el-button @click="resetForm('newform')">
+          重 置
+         </el-button>
+        </el-form-item>
+        <el-form-item label="" prop="expvmFiles">
+          <el-upload
+            class="upload-demo"
+            drag
+            ref="uploadfile"
+            :action="upload_url"
+            :auto-upload="false"
+            :before-upload="newFiles"
+            multiple>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <div slot="tip" class="el-upload__tip">实验信息附件上传，只能传(.file)文件</div>
+          </el-upload>
+        </el-form-item>
+     </el-form>
     </div>
 
 </template>
 
 <script>
-    import Bus from '../eventBus'
-    import DbModal from './DbModal.vue'
+import Bus from "../eventBus";
+import DbModal from "./DbModal.vue";
 
-    export default {
-        data(){
-            return {
-                tableData: [],
-                apiUrl: 'http://127.0.0.1:8000/api/persons',
-                total: 0,
-                pageSize: 10,
-                currentPage: 1,
-                sex: '',
-                email: '',
-                dialogFormVisible: false,
-                form: '',
+export default {
+  data() {
+    return {
+      upload_url: "aaa", // 随便填一个，但一定要有
+      uploadForm: new FormData(), // 一个formdata
+      rules: {}, // 用到的规则
+      newform: {
+        expName: "",
+        groupName: "",
+        expSn: "",
+        subGroupName: "",
+        expvmDifficulty: 1
+      }
+    };
+  },
+
+  components: {
+    DbModal
+  },
+  mounted() {},
+
+  methods: {
+    newSubmitForm() {
+      this.$refs["newform"].validate(valid => {
+        if (valid) {
+          this.$refs.uploadfile.submit();
+
+          this.$axios({
+            method: "post", // 方式一定是post
+            url: "http://localhost:8000/test",
+            timeout: 20000,
+            data: this.uploadForm // 参数需要是单一的formData形式
+          }).then(res => {
+            if (res.code === 400) {
+              alert(res.error);
+            } else if (res.code === 200) {
+                alert("上传成功！");
             }
-        },
-        components: {
-            DbModal
-        },
-        mounted () {
-            this.getCustomers();
-            Bus.$on('filterResultData', (data) => {
-                this.tableData = data.results;
-                this.total = data.total_pages;
-                this.pageSize = data.count;
-                this.email = data.email;
-                this.sex = data.sex;
-
-            });
-        },
-
-        methods: {
-
-            dialogVisible: function () {
-                this.dialogFormVisible = false;
-            },
-
-            getCustomers: function () {
-                this.$axios.get(this.apiUrl, {
-                    params: {
-                        page: this.currentPage,
-                        sex: this.sex,
-                        email: this.email
-                    }
-                }).then((response) => {
-                    this.tableData = response.data.data.results;
-                    this.total = response.data.data.total;
-                    this.pageSize = response.data.data.count;
-                    console.log(response.data.data);
-                }).catch(function (response) {
-                    console.log(response)
-                });
-            },
-            changePage: function (currentPage) {
-                this.currentPage = currentPage;
-                this.getCustomers()
-            },
-            editItem: function (index, rows) {
-                this.dialogFormVisible = true;
-                const itemId = rows[index].id;
-                const idurl = 'http://127.0.0.1:8000/api/persons/detail/' + itemId;
-                this.$axios.get(idurl).then((response) => {
-                    this.form = response.data;
-                }).catch(function (response) {
-                    console.log(response)
-                });
-            },
-
-            formatter(row, column) {
-                let data = this.$moment(row.create_datetime, this.$moment.ISO_8601);
-                return data.format('YYYY-MM-DD')
-            },
+            this.uploadForm = new FormData();
+          });
+        } else {
+          console.log("error submit!!");
+          return false;
         }
+      });
+    },
+
+    newFiles(file) {
+      this.uploadForm.append("file", file);
+      return false;
     }
+  }
+};
 </script>
 
 <style>
-    .table {
-        margin-top: 30px;
-    }
+.table {
+  margin-top: 30px;
+}
 
-    .pagination {
-        margin-top: 10px;
-        float: right;
-    }
-
+.pagination {
+  margin-top: 10px;
+  float: right;
+}
 </style>

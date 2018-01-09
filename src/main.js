@@ -15,7 +15,9 @@ import {
     FormItem,
     Input,
     Dialog,
-    Option
+    Option,
+    Upload,
+    Rate,
 } from 'element-ui'
 import App from './App.vue'
 import 'element-ui/lib/theme-default/index.css'
@@ -26,6 +28,14 @@ import locale from 'element-ui/lib/locale'
 import moment from 'moment'
 import axios from 'axios'
 import curvejs from 'curvejs'
+
+import $ from 'jquery'
+
+import '../static/ueditor.config.js'
+import '../static/ueditor.all.js'
+import '../static/lang/zh-cn/zh-cn.js'
+import '../static/ueditor.parse.js'
+
 
 Object.defineProperty(Vue.prototype, '$moment', { value: moment });
 Object.defineProperty(Vue.prototype, '$axios', { value: axios });
@@ -43,6 +53,8 @@ Vue.use(FormItem);
 Vue.use(Input);
 Vue.use(Dialog);
 Vue.use(Option);
+Vue.use(Upload);
+Vue.use(Rate);
 
 locale.use(lang);
 
