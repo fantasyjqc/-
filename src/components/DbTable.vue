@@ -67,7 +67,7 @@ export default {
             if (res.code === 400) {
               alert(res.error);
             } else if (res.code === 200) {
-                alert("上传成功！");
+              alert("上传成功！");
             }
             this.uploadForm = new FormData();
           });
