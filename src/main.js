@@ -31,10 +31,16 @@ import curvejs from 'curvejs'
 
 import $ from 'jquery'
 
-import '../static/ueditor.config.js'
-import '../static/ueditor.all.js'
-import '../static/lang/zh-cn/zh-cn.js'
-import '../static/ueditor.parse.js'
+import '../static/ueditor/ueditor.config.js'
+import '../static/ueditor/ueditor.all.js'
+import '../static/ueditor/lang/zh-cn/zh-cn.js'
+import '../static/ueditor/ueditor.parse.js'
+
+import '../static/neditor/neditor.config.js'
+import '../static/neditor/neditor.all.js'
+import '../static/neditor/lang/zh-cn/zh-cn.js'
+import '../static/neditor/neditor.parse.js'
+
 
 
 Object.defineProperty(Vue.prototype, '$moment', { value: moment });
